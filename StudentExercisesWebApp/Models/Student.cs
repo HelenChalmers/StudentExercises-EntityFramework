@@ -26,5 +26,7 @@ namespace StudentExercisesWebApp.Models
         /*Not in Datbase */
         public virtual Cohort Cohort { get; set; }
         public virtual ICollection<StudentExercise> StudentExercises { get; set; }
+
+        public string FullName { get { return FirstName + " " + LastName; } }
     }
 }

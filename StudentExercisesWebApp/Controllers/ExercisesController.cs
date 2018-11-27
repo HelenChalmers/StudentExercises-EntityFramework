@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StudentExercisesWebApp.Data;
 using StudentExercisesWebApp.Models;
+using StudentExercisesWebApp.Models.ViewModels;
 
 namespace StudentExercisesWebApp.Controllers
 {
@@ -34,7 +35,11 @@ namespace StudentExercisesWebApp.Controllers
             }
 
             var exercise = await _context.Exercises
-                .FirstOrDefaultAsync(m => m.ExerciseId == id);
+                .Include(e => e.StudentExercises)
+                    .ThenInclude(se => se.Student)
+                //.Include("StudentExercises.Exercise")
+                .FirstOrDefaultAsync(e => e.ExerciseId == id);
+
             if (exercise == null)
             {
                 return NotFound();
@@ -46,7 +51,9 @@ namespace StudentExercisesWebApp.Controllers
         // GET: Exercises/Create
         public IActionResult Create()
         {
-            return View();
+
+            CreateExerciseViewModel model = new CreateExerciseViewModel(_context);
+            return View(model);
         }
 
         // POST: Exercises/Create
@@ -54,16 +61,28 @@ namespace StudentExercisesWebApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ExerciseId,Name,Language")] Exercise exercise)
+        public async Task<IActionResult> Create(CreateExerciseViewModel model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(exercise);
+                _context.Add(model.Exercise);
+
+                foreach (int studentId in model.SelectedStudents)
+                {
+                    StudentExercise newSE = new StudentExercise()
+                    {
+                        StudentId = studentId,
+                        ExerciseId = model.Exercise.ExerciseId
+                    };
+                    _context.Add(newSE);
+                }
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(exercise);
+           
+            return View(model);
         }
+
 
         // GET: Exercises/Edit/5
         public async Task<IActionResult> Edit(int? id)

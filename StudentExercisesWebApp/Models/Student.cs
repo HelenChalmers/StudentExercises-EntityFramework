@@ -23,6 +23,7 @@ namespace StudentExercisesWebApp.Models
         [Required(ErrorMessage ="Please select a corhort")]
         public int CohortId { get; set; }
 
+        /*Not in Datbase */
         public virtual Cohort Cohort { get; set; }
         public virtual ICollection<StudentExercise> StudentExercises { get; set; }
     }

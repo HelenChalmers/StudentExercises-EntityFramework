@@ -69,15 +69,17 @@ namespace StudentExercisesWebApp.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(model.Student);
-
-                foreach (int exerciseId in model.SelectedExercises)
+                if (model.SelectedExercises != null)
                 {
-                    StudentExercise newSE = new StudentExercise()
+                    foreach (int exerciseId in model.SelectedExercises)
                     {
-                        StudentId = model.Student.StudentId,
-                        ExerciseId = exerciseId
-                    };
-                    _context.Add(newSE);
+                        StudentExercise newSE = new StudentExercise()
+                        {
+                            StudentId = model.Student.StudentId,
+                            ExerciseId = exerciseId
+                        };
+                        _context.Add(newSE);
+                    }
                 }
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
